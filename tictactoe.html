@@ -235,6 +235,8 @@ function make_computer_move() {
 	var square_score;
 	var ignore_square;
 	var temp_value;
+	var corner_squares = [0, 2, 6, 8];
+	var opposite_corners = [8, 6, 2, 0];
 	
 	// don't switch player if this is the first move
 	if (used_squares.length > 0) {
@@ -243,16 +245,21 @@ function make_computer_move() {
 	
 	// check to see if this is first move
 	if (used_squares.length === 0) {
-		// we could just select middle square every time since it has most winning combinations, but that is boring, so let's give 50/50 chance the computer picks a middle square or one of the corner squares. We will not select a middle-side square because that makes no sense.
+		// Let's give 50/50 chance the computer picks a middle square or one of the corner squares. We will not select a middle-side square because that makes no sense.
 		var select_middle_square = Math.floor(Math.random()*2);
 		if (select_middle_square === 0) {
 			selected_square = 4;
 		} else {
 			// let's pick one of the corner squares at random
-			var corner_squares = [0, 2, 6, 8];
 			var select_corner_square = Math.floor(Math.random()*4);	
 			selected_square = corner_squares[select_corner_square];
 		}
+	} else if (used_squares.length === 1 && $.inArray(used_squares[0],corner_squares) > -1) {
+		// the user picked a corner square on the first move so we want to select the opposite corner
+		selected_square = opposite_corners[$.inArray(used_squares[0],corner_squares)];
+	} else if (used_squares.length === 2 && $.inArray(used_squares[0],corner_squares) > -1 && used_squares[1] === 4) {
+		// the user picked a middle square after the computer first selected a corner, so we want to select the opposite corner
+		selected_square = opposite_corners[$.inArray(used_squares[0],corner_squares)];
 	} else {
 		// we iterate through the squares to see what results we would get from each
 		square_loop:
@@ -272,6 +279,7 @@ function make_computer_move() {
 				for (j = 0; j < board.length; j++) {
 					temp_value = (square_values[i][j] * score_multiplier) + board[j];
 					if (temp_value === 3 * score_multiplier) {
+
 						// if computer picks this square it wins
 						selected_square	= i;
 						break square_loop;
