@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Tic-Tac-Toe</title>
+</head>
+<style type="text/css">
+h1 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 20px;
+	font-weight: bold;
+	color:#666666;
+	
+}
+div {
+	margin: 0px;
+	padding: 0px;
+}
+.board {
+	width: 600px;
+	height: 600px;
+	margin: 30px;
+}
+.row {
+    width: 600px;
+	height: 200px;
+}
+.square {
+	width: 200px;
+	height: 200px;
+	float: left;
+	cursor: pointer;
+}
+.all-borders {
+	border: 2px #000000 solid;
+	width: 196px;
+	height: 196px;
+}
+.vert-borders {
+	border-left: 2px #000000 solid;
+	border-right: 2px #000000 solid;
+	width: 196px;
+}
+.hor-borders {
+	border-top: 2px #000000 solid;
+	border-bottom: 2px #000000 solid;
+	height: 196px;	
+}
+.o {
+    background: rgb(30,87,153); /* Old browsers */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxZTU3OTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI1MSUiIHN0b3AtY29sb3I9IiMyOTg5ZDgiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI1MSUiIHN0b3AtY29sb3I9IiMyMDdjY2EiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI2NCUiIHN0b3AtY29sb3I9IiNjOWQ5ZTUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+	background: -moz-radial-gradient(center, ellipse cover, rgba(30,87,153,1) 0%, rgba(41,137,216,1) 51%, rgba(32,124,202,1) 51%, rgba(201,217,229,1) 64%); /* FF3.6+ */
+	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(30,87,153,1)), color-stop(51%,rgba(41,137,216,1)), color-stop(51%,rgba(32,124,202,1)), color-stop(64%,rgba(201,217,229,1))); /* Chrome,Safari4+ */
+	background: -webkit-radial-gradient(center, ellipse cover, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 51%,rgba(32,124,202,1) 51%,rgba(201,217,229,1) 64%); /* Chrome10+,Safari5.1+ */
+	background: -o-radial-gradient(center, ellipse cover, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 51%,rgba(32,124,202,1) 51%,rgba(201,217,229,1) 64%); /* Opera 12+ */
+	background: -ms-radial-gradient(center, ellipse cover, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 51%,rgba(32,124,202,1) 51%,rgba(201,217,229,1) 64%); /* IE10+ */
+	background: radial-gradient(ellipse at center, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 51%,rgba(32,124,202,1) 51%,rgba(201,217,229,1) 64%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#c9d9e5',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+}
+.o.win {
+    background: rgb(30,87,153); /* Old browsers */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxZTU3OTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI1MSUiIHN0b3AtY29sb3I9IiMyOTg5ZDgiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI1MSUiIHN0b3AtY29sb3I9IiMyMDdjY2EiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI2NCUiIHN0b3AtY29sb3I9IiNjOWQ5ZTUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+	background: -moz-radial-gradient(center, ellipse cover, rgba(30,87,153,1) 0%, rgba(41,137,216,1) 51%, rgba(32,124,202,1) 51%, rgba(226,219,68,1) 64%); /* FF3.6+ */
+	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(30,87,153,1)), color-stop(51%,rgba(41,137,216,1)), color-stop(51%,rgba(32,124,202,1)), color-stop(64%,rgba(226,219,68,1))); /* Chrome,Safari4+ */
+	background: -webkit-radial-gradient(center, ellipse cover, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 51%,rgba(32,124,202,1) 51%,rgba(226,219,68,1)) 64%); /* Chrome10+,Safari5.1+ */
+	background: -o-radial-gradient(center, ellipse cover, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 51%,rgba(32,124,202,1) 51%,rgba(226,219,68,1) 64%); /* Opera 12+ */
+	background: -ms-radial-gradient(center, ellipse cover, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 51%,rgba(32,124,202,1) 51%,rgba(226,219,68,1) 64%); /* IE10+ */
+	background: radial-gradient(ellipse at center, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 51%,rgba(32,124,202,1) 51%,rgba(226,219,68,1) 64%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#e2db44',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+}
+.x {
+	background: rgb(155,31,31); /* Old browsers */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM5YjFmMWYiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI1MSUiIHN0b3AtY29sb3I9IiNkNjI4MmIiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI1MSUiIHN0b3AtY29sb3I9IiNjOTIwMjMiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI2NCUiIHN0b3AtY29sb3I9IiNlNWM5YzkiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+	background: -moz-radial-gradient(center, ellipse cover, rgba(155,31,31,1) 0%, rgba(214,40,43,1) 51%, rgba(201,32,35,1) 51%, rgba(229,201,201,1) 64%); /* FF3.6+ */
+	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(155,31,31,1)), color-stop(51%,rgba(214,40,43,1)), color-stop(51%,rgba(201,32,35,1)), color-stop(64%,rgba(229,201,201,1))); /* Chrome,Safari4+ */
+	background: -webkit-radial-gradient(center, ellipse cover, rgba(155,31,31,1) 0%,rgba(214,40,43,1) 51%,rgba(201,32,35,1) 51%,rgba(229,201,201,1) 64%); /* Chrome10+,Safari5.1+ */
+	background: -o-radial-gradient(center, ellipse cover, rgba(155,31,31,1) 0%,rgba(214,40,43,1) 51%,rgba(201,32,35,1) 51%,rgba(229,201,201,1) 64%); /* Opera 12+ */
+	background: -ms-radial-gradient(center, ellipse cover, rgba(155,31,31,1) 0%,rgba(214,40,43,1) 51%,rgba(201,32,35,1) 51%,rgba(229,201,201,1) 64%); /* IE10+ */
+	background: radial-gradient(ellipse at center, rgba(155,31,31,1) 0%,rgba(214,40,43,1) 51%,rgba(201,32,35,1) 51%,rgba(229,201,201,1) 64%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9b1f1f', endColorstr='#e5c9c9',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+}
+.x.win {
+	background: rgb(155,31,31); /* Old browsers */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM5YjFmMWYiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI1MSUiIHN0b3AtY29sb3I9IiNkNjI4MmIiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI1MSUiIHN0b3AtY29sb3I9IiNjOTIwMjMiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI2NCUiIHN0b3AtY29sb3I9IiNlMmRiNDQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+	background: -moz-radial-gradient(center, ellipse cover, rgba(155,31,31,1) 0%, rgba(214,40,43,1) 51%, rgba(201,32,35,1) 51%, rgba(226,219,68,1) 64%); /* FF3.6+ */
+	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(155,31,31,1)), color-stop(51%,rgba(214,40,43,1)), color-stop(51%,rgba(201,32,35,1)), color-stop(64%,rgba(226,219,68,1))); /* Chrome,Safari4+ */
+	background: -webkit-radial-gradient(center, ellipse cover, rgba(155,31,31,1) 0%,rgba(214,40,43,1) 51%,rgba(201,32,35,1) 51%,rgba(226,219,68,1) 64%); /* Chrome10+,Safari5.1+ */
+	background: -o-radial-gradient(center, ellipse cover, rgba(155,31,31,1) 0%,rgba(214,40,43,1) 51%,rgba(201,32,35,1) 51%,rgba(226,219,68,1) 64%); /* Opera 12+ */
+	background: -ms-radial-gradient(center, ellipse cover, rgba(155,31,31,1) 0%,rgba(214,40,43,1) 51%,rgba(201,32,35,1) 51%,rgba(226,219,68,1) 64%); /* IE10+ */
+	background: radial-gradient(ellipse at center, rgba(155,31,31,1) 0%,rgba(214,40,43,1) 51%,rgba(201,32,35,1) 51%,rgba(226,219,68,1) 64%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9b1f1f', endColorstr='#e2db44',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+}
+</style>
+<!--[if gte IE 9]>
+  <style type="text/css">
+    .o, .x {
+       filter: none;
+    }
+  </style>
+<![endif]-->
+<body>
+	<h1>Javascript Tic-Tac-Toe by Mike Brant</h1>
+    <div class="board">
+        <div class="row">
+            <div id="0" class="square d1 h1 v1"></div>
+            <div id="1" class="square vert-borders h1 v2"></div>
+            <div id="2" class="square d2 h1 v3"></div>
+        </div>
+        <div class="row">
+            <div id="3" class="square hor-borders h2 v1"></div>
+            <div id="4" class="square all-borders d1 d2 h2 v2"></div>
+            <div id="5" class="square hor-borders h2 v3"></div>
+        </div>
+        <div class="row">
+            <div id="6" class="square d2 h3 v1"></div>
+            <div id="7" class="square vert-borders h3 v2"></div>
+            <div id="8" class="square d1 h3 v3"></div>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" language="javascript">
+/*
+Define square values array. Here we assign an array for each square that indicates which of the 8 possible win combinations it is party to.  Each 8 item array corresponds to the following win combos in order: Diagonal 1 (top-left to bottom-right), Horizontal row 1 (top row), Hor 2, Hor 3, Vertical row 1 (left column), Vert 2, Vert 3, Diagonal 2 (bottom-left to top-right).
+So for example, Square 0 (top-left square) would have an array of [1, 1, 0, 0, 1, 0, 0, 0]
+*/
+var square_values = [
+	[1, 1, 0, 0, 1, 0, 0, 0],
+	[0, 1, 0, 0, 0, 1, 0, 0],
+	[0, 1, 0, 0, 0, 0, 1, 1],
+	[0, 0, 1, 0, 1, 0, 0, 0],
+	[1, 0, 1, 0, 0, 1, 0, 1],
+	[0, 0, 1, 0, 0, 0, 1, 0],
+	[0, 0, 0, 1, 1, 0, 0, 1],
+	[0, 0, 0, 1, 0, 1, 0, 0],
+	[1, 0, 0, 1, 0, 0, 1, 0]
+	];
+
+/*
+Define board array.  The values are set to zero initially. They represent the current cumulative contribution towards the winning combinations for player X (red) which are expressed in positive numbers and player O (blue) which are expressed in negative numbers.  So, player X wants to get one value in this array to equal 3 in order to win, while player O wants to get one of these values equal to -3 in order to win.  Each time a square is selected, the square's values from the square_values array is added to the values in the board array.
+*/
+var board = [0, 0, 0, 0, 0, 0, 0, 0];
+
+/*
+Define a mapping of win combinations to class names.  This is used for highlighting of the winning combination.  The position in the array correlates to the array elemtn positions in the board array
+*/
+var board_to_class = ['d1', 'h1', 'h2', 'h3', 'v1', 'v2', 'v3', 'd2'];
+
+// Array to store the used squares
+var used_squares = [];
+
+// Variable to determine who the computer player is.  Player 0 (X) plays first.
+var computer_player = 1;
+
+// Variable to detemine which player's turn it is. We always start a game with player 0 (X)
+var current_player = 0;
+
+// Variable storing multiplier that is used when adding player's square values to the board array
+var score_multiplier = 1;
+
+// variable storing the class to be applied to square selection made by current player
+var class_to_update = 'x';
+
+function reset_game() {
+	board = [0, 0, 0, 0, 0, 0, 0, 0];
+	used_squares = [];
+	if (computer_player === 1) {
+		computer_player = 0;
+	} else {
+		computer_player = 1;
+	}
+	current_player = 0;
+	score_multiplier = 1;
+	class_to_update = 'x';
+	$('.square').removeClass('o x win');
+	
+	if(current_player === computer_player) {
+		make_computer_move();
+	}
+}
+
+function update_board(square) {
+	for (i = 0; i < board.length; i++) {
+		board[i] += score_multiplier * square_values[square][i];
+	}	
+}
+
+function check_for_game_end() {
+	var win_value = 3 * score_multiplier;
+	var win_index = $.inArray(win_value, board);
+	var winning_class;
+	if (win_index === -1) {
+		// a winning value was not found. Let's see if all squares have been used up
+		if (used_squares.length === 9) {
+			alert('It seems intellectual superiority has yet to be determined.');
+			reset_game();
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		// determine class of winning combination
+		winning_class = board_to_class[win_index];
+
+		// highlight winning combination
+		$('.' + winning_class).addClass('win');
+
+		// alert message to screen
+		if (current_player === computer_player) {
+			alert('Unbelievable! You let the computer beat you!');
+		} else {
+			alert('Congratulations! You beat my stupid algorithm.');
+		}
+		reset_game();
+		return true;
+	}
+}
+
+function switch_player() {
+	if(current_player === 1) {
+		current_player = 0;
+		score_multiplier = 1;
+		class_to_update = 'x';
+	} else {
+		current_player = 1;
+		score_multiplier = -1;
+		class_to_update = 'o';
+	}	
+}
+
+function make_computer_move() {
+	var selected_square;
+	var best_square_score;
+	var square_score;
+	var ignore_square;
+	var temp_value;
+	
+	// don't switch player if this is the first move
+	if (used_squares.length > 0) {
+		switch_player();
+	}
+	
+	// check to see if this is first move
+	if (used_squares.length === 0) {
+		// we could just select middle square every time since it has most winning combinations, but that is boring, so let's give 50/50 chance the computer picks a middle square or one of the corner squares. We will not select a middle-side square because that makes no sense.
+		var select_middle_square = Math.floor(Math.random()*2);
+		if (select_middle_square === 0) {
+			selected_square = 4;
+		} else {
+			// let's pick one of the corner squares at random
+			var corner_squares = [0, 2, 6, 8];
+			var select_corner_square = Math.floor(Math.random()*4);	
+			selected_square = corner_squares[select_corner_square];
+		}
+	} else {
+		// we iterate through the squares to see what results we would get from each
+		square_loop:
+		for (i = 0; i < square_values.length; i++) {
+			if($.inArray(i, used_squares) > -1) {
+				// this square has already been used
+				continue;
+			} else {
+				// set this as the best square if one has note been set already
+				if (typeof selected_square == 'undefined') {
+					selected_square = i;
+					best_square_score = -100;
+				}
+				// add the square's value to the current board value
+				square_score = 0;
+				ignore_square = false;
+				for (j = 0; j < board.length; j++) {
+					temp_value = (square_values[i][j] * score_multiplier) + board[j];
+					if (temp_value === 3 * score_multiplier) {
+						// if computer picks this square it wins
+						selected_square	= i;
+						break square_loop;
+					} else if (temp_value === -2 * score_multiplier) {
+						// if we use this square, the opponent will be able to win next turn
+						// let's just skip to the next square
+						ignore_square = true;
+						break;
+					} else if (temp_value === 2 * score_multiplier) {
+						// this gets computer one square from winning so we give it a value of 10
+						square_score += 10;
+					} else {
+						// the value is either -1, 0, or 1 so we just assign a score  
+						square_score += score_multiplier * temp_value;
+					}
+					
+				}
+
+				if (ignore_square === false && square_score > best_square_score) {
+					selected_square = i;
+					best_square_score = square_score;
+				}
+			}
+		}
+	}
+	
+	// now we have a square selected, let's go ahead and update the board
+	used_squares.push(selected_square);
+	update_board(selected_square);
+	$('#' + selected_square).addClass(class_to_update);
+	
+	// check for end of game
+	var did_game_end = check_for_game_end();
+	
+	// if the game did not end, then we need to switch players
+	if (did_game_end === false) {
+		switch_player();
+	}
+}
+		
+
+$('.square').click(function () {
+	var clicked_square = $(this);
+	var clicked_id = parseInt(clicked_square.attr('id'));	
+	
+	if (current_player === computer_player) {
+		// the computer is trying to play it's turn, so we just ignore this click
+		return false;
+	} else if ($.inArray(clicked_id, used_squares) > -1) {
+		// we already have this square in array
+		return false;
+	} else {
+		// let's process this move
+		used_squares.push(clicked_id);
+		update_board(clicked_id);
+
+		// update the style
+		$('#' + clicked_id).addClass(class_to_update);
+		
+		// check for a win
+		var did_game_end = check_for_game_end();
+		
+		// if the game did not end, then we need to let the computer take it's turn
+		if (did_game_end === false) {
+			make_computer_move();
+		}
+	}
+});
+</script>
