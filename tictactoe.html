@@ -120,7 +120,11 @@ div {
 </body>
 </html>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
 <script type="text/javascript" language="javascript">
+// array holding all index values of all squares (0-8)
+var squares = _.range(9);
+
 /*
 Define square values array. Here we assign an array for each square that indicates which of the 8 possible win combinations it is party to.  Each 8 item array corresponds to the following win combos in order: Diagonal 1 (top-left to bottom-right), Horizontal row 1 (top row), Hor 2, Hor 3, Vertical row 1 (left column), Vert 2, Vert 3, Diagonal 2 (bottom-left to top-right).
 So for example, Square 0 (top-left square) would have an array of [1, 1, 0, 0, 1, 0, 0, 0]
@@ -147,8 +151,21 @@ Define a mapping of win combinations to class names.  This is used for highlight
 */
 var board_to_class = ['d1', 'h1', 'h2', 'h3', 'v1', 'v2', 'v3', 'd2'];
 
+// Define array of squares involved with each winning combination
+var d1 = [0, 4, 8];
+var h1 = [0, 1, 2];
+var h2 = [3, 4, 5];
+var h3 = [6, 7, 8];
+var v1 = [0, 3, 6];
+var v2 = [1, 4, 7];
+var v3 = [2, 5, 8];
+var d2 = [2, 4, 6];
+
 // Array to store the used squares
 var used_squares = [];
+
+// Array to store available squares
+var available_squares = _.range(9);
 
 // Variable to determine who the computer player is.  Player 0 (X) plays first.
 var computer_player = 1;
@@ -188,7 +205,7 @@ function update_board(square) {
 
 function check_for_game_end() {
 	var win_value = 3 * score_multiplier;
-	var win_index = $.inArray(win_value, board);
+	var win_index = _.indexOf(board, win_value);
 	var winning_class;
 	if (win_index === -1) {
 		// a winning value was not found. Let's see if all squares have been used up
@@ -230,18 +247,17 @@ function switch_player() {
 }
 
 function make_computer_move() {
-	var selected_square;
-	var best_square_score;
-	var square_score;
-	var ignore_square;
-	var temp_value;
+	var selected_square = null;
 	var corner_squares = [0, 2, 6, 8];
-	var opposite_corners = [8, 6, 2, 0];
+	var best_square;
+	var best_square_score;
+	var forces_to_compare = [];
+	var forces_to_compare_boards = [];
 	
 	// don't switch player if this is the first move
 	if (used_squares.length > 0) {
 		switch_player();
-	}
+	}	
 	
 	// check to see if this is first move
 	if (used_squares.length === 0) {
@@ -257,56 +273,101 @@ function make_computer_move() {
 	} else if (used_squares.length === 2 && $.inArray(used_squares[0],corner_squares) > -1 && used_squares[1] === 4) {
 		// the user picked a middle square after the computer first selected a corner, so we want to select the opposite corner
 		selected_square = opposite_corners[$.inArray(used_squares[0],corner_squares)];
-	} else if (used_squares.length === 3 && $.inArray(used_squares[0],corner_squares) > -1 && used_squares[1] === 4 && used_squares[0] + used_squares[2] === 8)  {
-		// the user has selected opposite corner squares with the computer selecting the middle square.  In this case we want to select a random middle side square
-		selected_square = (Math.floor(Math.random()*4) * 2) + 1;
 	} else {
 		// we iterate through the squares to see what results we would get from each
-		square_loop:
-		for (i = 0; i < square_values.length; i++) {
-			if($.inArray(i, used_squares) > -1) {
-				// this square has already been used
-				continue;
-			} else {
-				// set this as the best square if one has note been set already
-				if (typeof selected_square == 'undefined') {
-					selected_square = i;
-					best_square_score = -100;
+		best_square_score = -100;
+		var look_only_for_wins = false;
+		for (ii = 0; ii < available_squares.length; ii++) {
+			var square_score;
+			var temp_board = calculate_board_value(board, square_values[available_squares[ii]], score_multiplier);
+			
+			// see if there are any possible wins if this square is selected
+			if (_.include(temp_board, (3 * score_multiplier))) {
+				selected_square	= available_squares[ii];
+				break;
+			}
+			
+			if (look_only_for_wins === false) {
+				// see if there are any cases where the human player would be able to win the next turn if this square was selected
+				if (_.include(temp_board, (-2 * score_multiplier))) {
+					// we don't want to select this square
+					continue;
 				}
-				// add the square's value to the current board value
-				square_score = 0;
-				ignore_square = false;
-				for (j = 0; j < board.length; j++) {
-					temp_value = (square_values[i][j] * score_multiplier) + board[j];
-					if (temp_value === 3 * score_multiplier) {
-
-						// if computer picks this square it wins
-						selected_square	= i;
-						break square_loop;
-					} else if (temp_value === -2 * score_multiplier) {
-						// if we use this square, the opponent will be able to win next turn
-						// let's just skip to the next square
-						ignore_square = true;
-					} else if (temp_value === 2 * score_multiplier) {
-						// this gets computer one square from winning so we give it a value of 10
-						square_score += 10;
+				
+				// see if there are any cases where we can force the human player to select a square
+				if (_.include(temp_board, (2 * score_multiplier))) {
+					var forces = _.without(temp_board, 1, 0, -1);
+					if (forces.length === 2) {
+						// selecting this square will force a trap which the computer will win on the following turn
+						selected_square	= available_squares[ii];
+						look_only_for_wins = true;
+						continue;
 					} else {
-						// the value is either -1, 0, or 1 so we just assign a score  
-						square_score += score_multiplier * temp_value;
+						// add this square to the list of force moves that we will need to compare
+						forces_to_compare.push(available_squares[ii]);
+						forces_to_compare_boards.push(temp_board);
+						continue;
 					}
-					
 				}
-
-				if (ignore_square === false && square_score > best_square_score) {
-					selected_square = i;
+				
+				square_score = _.reduce(temp_board, function(sum, value){ return sum + (score_multiplier * value); }, 0);
+				
+				if (square_score > best_square_score) {
+					best_square = available_squares[ii];
 					best_square_score = square_score;
 				}
+			}
+		}
+
+		if (selected_square === null) {
+			// we still need to determine which square to use
+			// first, let's see if we have any force moves we need to compare
+			if (forces_to_compare.length === 0) {
+				// there are no moves that will force the human player to select a square, just use best square available as calculated in previous loop
+				selected_square = best_square;
+			} else if (forces_to_compare.length === 1) {
+				// there is only one square which will force the human user to pick a square
+				selected_square = forces_to_compare[0];
+			} else {
+				// we have more than one square option which can force the human player to pick a square
+				// we need to play out the human player's next moves for each to see if which selection will be the best
+				var best_square_against_human;
+				var best_square_against_human_score = 100;
+				for(ii = 0; ii < forces_to_compare.length; ii++) {
+					// determine the square that the human player will have to use for his next move is the given square is selected
+					var force_combo_index = _.indexOf(forces_to_compare_boards[ii], (2 * score_multiplier));
+					var combo_to_evaluate = board_to_class[force_combo_index];
+					var combo_array = window[''+combo_to_evaluate+''];
+					var open_square_array = _.difference(combo_array, used_squares, [forces_to_compare[ii]]); 
+					var human_player_square = open_square_array[0];
+					
+					// determine what the board value would be if the human player used this square
+					var human_board = calculate_board_value(forces_to_compare_boards[ii], square_values[human_player_square], (score_multiplier * -1));
+					// determine if the human's move results in a trap for the computer
+					if (_.include(human_board, (2 * score_multiplier * -1))) {
+						var human_forces = _.without(human_board, 1, 0, -1, (2 * score_multiplier));
+						if (human_forces.length === 2) {
+							// selecting this square will force a trap on the computer. We do not want to select this square
+							continue;
+						}
+					}
+					
+					// find the lowest scoring square
+					square_score = _.reduce(human_board, function(sum, value){ return sum + (score_multiplier * -1 * value); }, 0);
+					if (square_score < best_square_against_human_score) {
+						best_square_against_human = forces_to_compare[ii];
+						best_square_against_human_score = square_score;
+					}
+				}
+				
+				selected_square = best_square_against_human;
 			}
 		}
 	}
 	
 	// now we have a square selected, let's go ahead and update the board
 	used_squares.push(selected_square);
+	available_squares = _.difference(squares, used_squares);
 	update_board(selected_square);
 	$('#' + selected_square).addClass(class_to_update);
 	
@@ -318,7 +379,14 @@ function make_computer_move() {
 		switch_player();
 	}
 }
-		
+
+function calculate_board_value(existing_board, board_changes, local_multiplier) {
+	var return_array = [];
+	for (i = 0; i < existing_board.length; i++) {
+		return_array.push(existing_board[i] + (local_multiplier * board_changes[i]));	
+	}
+	return return_array;
+}		
 
 $('.square').click(function () {
 	var clicked_square = $(this);
@@ -327,12 +395,13 @@ $('.square').click(function () {
 	if (current_player === computer_player) {
 		// the computer is trying to play it's turn, so we just ignore this click
 		return false;
-	} else if ($.inArray(clicked_id, used_squares) > -1) {
+	} else if (_.indexOf(used_squares, clicked_id) > -1) {
 		// we already have this square in array
 		return false;
 	} else {
 		// let's process this move
 		used_squares.push(clicked_id);
+		available_squares = _.difference(squares, used_squares);
 		update_board(clicked_id);
 
 		// update the style
