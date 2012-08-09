@@ -254,12 +254,12 @@ function make_computer_move() {
 			var select_corner_square = Math.floor(Math.random()*4);	
 			selected_square = corner_squares[select_corner_square];
 		}
-	} else if (used_squares.length === 1 && $.inArray(used_squares[0],corner_squares) > -1) {
-		// the user picked a corner square on the first move so we want to select the opposite corner
-		selected_square = opposite_corners[$.inArray(used_squares[0],corner_squares)];
 	} else if (used_squares.length === 2 && $.inArray(used_squares[0],corner_squares) > -1 && used_squares[1] === 4) {
 		// the user picked a middle square after the computer first selected a corner, so we want to select the opposite corner
 		selected_square = opposite_corners[$.inArray(used_squares[0],corner_squares)];
+	} else if (used_squares.length === 3 && $.inArray(used_squares[0],corner_squares) > -1 && used_squares[1] === 4 && used_squares[0] + used_squares[2] === 8)  {
+		// the user has selected opposite corner squares with the computer selecting the middle square.  In this case we want to select a random middle side square
+		selected_square = (Math.floor(Math.random()*4) * 2) + 1;
 	} else {
 		// we iterate through the squares to see what results we would get from each
 		square_loop:
